@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  techniques: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Technique'
+    }
+  ],
   token: String
 }, {
   timestamps: true,
