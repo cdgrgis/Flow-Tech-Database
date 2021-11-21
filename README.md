@@ -76,13 +76,13 @@ Add your own scripts to test your custom API.
 
 ### Authentication
 
-| Verb   | URI Pattern            | Controller#Action |
-|--------|------------------------|-------------------|
-| POST   | `/sign-up`             | `users#signup`    |
-| POST   | `/sign-in`             | `users#signin`    |
-| PATCH  | `/change-password/` | `users#changepw`  |
-| DELETE | `/sign-out/`        | `users#signout`   |
-
+| As a      | I would like to     | 
+|-----------|---------------------|
+| User      | Create techniques   |
+| User      | Modify techniques   |
+| User      | Delete techniques   |
+| User      | Create sequences    |
+ 
 #### POST /sign-up
 
 Request:

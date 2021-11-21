@@ -27,6 +27,7 @@ const removeBlanks = require('../../lib/remove_blank_fields')
 // it will also set `req.user`
 const requireToken = passport.authenticate('bearer', { session: false })
 
+
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
@@ -61,12 +62,20 @@ router.get('/:id', requireToken, (req, res, next) => {
 router.post('/', requireToken, (req, res, next) => {
   // set owner of new technique to be current user
   req.body.technique.owner = req.user.id
-
+  let techniqueId 
+  
   Technique.create(req.body.technique)
     // respond to successful `create` with status 201 and JSON of new "technique"
     .then(technique => {
+      techniqueId = technique._id
       res.status(201).json({ technique })
     })
+    .then(() => User.findById(req.user.id))
+    .then(user => {
+      user.techniques.push(techniqueId)
+      return user.save()
+    })
+
     // if an error occurs, pass it off to our error handler
     // the error handler needs the error message and the `res` object so that it
     // can send an error message back to the client
