@@ -104,19 +104,28 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
 // DESTROY
 // DELETE /techniques/5a7db6c74d55bc51bdf39793
 router.delete('/:id', requireToken, (req, res, next) => {
+  console.log('tech id ', req.params.id)
+  console.log('user id ', req.user.id)
   Technique.findById(req.params.id)
     .then(handle404)
      // ensure the signed in user (req.user.id) is the same as the technique's owner (technique.owner)
     .then(technique => requireOwnership(req, technique))
     // delete technique from mongodb
     .then(technique => technique.deleteOne())
+    // GET user
+    .then(() => User.findById(req.user.id))
+    // remove technique from user's techniques array
+    .then(user => {
+      user.techniques.pull(req.params.id)
+      return user.save()
+    })
     // send back 204 and no content if the deletion succeeded
     .then(() => res.sendStatus(204))
     // if an error occurs, pass it to the handler
     .catch(next)
 })
 
-router.patch('/:techniqueId/add-relationship', requireToken, (req, res, next) => {
+router.patch('/:id/relationships', requireToken, (req, res, next) => {
   const techniqueId = req.params.techniqueId
   const userId = req.body.technique.userId
 
@@ -126,6 +135,20 @@ router.patch('/:techniqueId/add-relationship', requireToken, (req, res, next) =>
       return user.save()
     })
     .then(() => res.sendStatus(204))
+    .catch(next)
+})
+
+router.delete('/:id/relationships', requireToken, (req, res, next) => {
+  const techniqueId = req.params.id
+  const userId = req.user.id
+  
+  User.findById(userId)
+    .then(user => {
+      user.techniques.pull(techniqueId)
+
+      return user.save()
+    })
+    .then(res.sendStatus(204))
     .catch(next)
 })
 

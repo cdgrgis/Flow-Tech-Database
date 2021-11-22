@@ -25,6 +25,27 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
+// GET USERS
+
+router.get('/users', (req, res, next) => {
+  User.find()
+    .populate('techniques')
+    .then(users => console.log(users))
+    .catch(next)
+})
+
+// GET one User
+router.get('/users/:id', requireToken, (req, res, next) => {
+  console.log('user id ', req.user.id)
+  User.findById(req.user.id)
+    .populate('techniques')
+    .then(user => {
+      console.log(user)
+      res.status(200).json({ user })
+    })
+    .catch(next)
+})
+
 // SIGN UP
 // POST /sign-up
 router.post('/sign-up', (req, res, next) => {
