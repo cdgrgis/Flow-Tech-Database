@@ -69,6 +69,7 @@ router.get('/:id', requireToken, (req, res, next) => {
 router.post('/', requireToken, (req, res, next) => {
   // set owner of new sequence to be current user
   req.body.sequence.owner = req.user.id
+  console.log(req.user)
   let sequenceId
   let technique 
   const sequenceData = req.body.sequence
@@ -77,6 +78,7 @@ router.post('/', requireToken, (req, res, next) => {
   console.log('length ', sequenceData.techniques.length)
   
   Sequence.create(req.body.sequence)
+    
     // respond to successful `create` with status 201 and JSON of new "sequence"
     .then(sequence => {
       sequenceId = sequence._id
