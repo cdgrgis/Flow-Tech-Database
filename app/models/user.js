@@ -10,10 +10,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  userName: String,
+  picture: String,
   techniques: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Technique'
+    }
+  ],
+  sequences: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Sequence"
     }
   ],
   token: String

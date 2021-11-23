@@ -13,6 +13,13 @@ const techniqueSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  description: String,
+  sequences: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Sequence'
+    }
+  ],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
