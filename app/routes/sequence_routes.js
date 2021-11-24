@@ -69,36 +69,30 @@ router.get('/:id', requireToken, (req, res, next) => {
 router.post('/', requireToken, (req, res, next) => {
   // set owner of new sequence to be current user
   req.body.sequence.owner = req.user.id
-  console.log(req.user)
-  let sequenceId
+  console.log('user ', req.user)
+  
   let technique 
-  const sequenceData = req.body.sequence
-  console.log('sequence data ', sequenceData)
-  console.log('tech1 ', sequenceData.techniques[0])
-  console.log('length ', sequenceData.techniques.length)
+  let sequenceData 
+ 
+
   
   Sequence.create(req.body.sequence)
     
     // respond to successful `create` with status 201 and JSON of new "sequence"
     .then(sequence => {
-      sequenceId = sequence._id
-      res.status(201).json({ sequence })
+      sequenceData = sequence
+      console.log('hello', sequenceData)
+      res.status(201).json({ sequenceData })
     })
-    .then(() => User.findById(req.user.id))
+    .then(() => User.findById(req.user._id))
     .then(user => {
-      user.sequences.push(sequenceId)
+      
+      user.sequences.push(sequenceData._id)
       return user.save()
     })
 
     // Find technique by ids
-    .then(() => {
-      for (let i = 0; i < sequenceData.techniques.length; i++) {
-        technique = Technique.findById(sequenceData.techniques[i])
-        technique.sequences.push(sequenceId)
-        console.log('technique ', technique)
-      }
-      
-    })
+    
     // if an error occurs, pass it off to our error handler
     // the error handler needs the error message and the `res` object so that it
     // can send an error message back to the client
