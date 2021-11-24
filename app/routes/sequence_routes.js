@@ -71,18 +71,20 @@ router.post('/', requireToken, (req, res, next) => {
   req.body.sequence.owner = req.user.id
   console.log('user ', req.user)
   
-  let technique 
+  const techniqueIdArray = [Object.values(req.body.sequence.techniques)]
+  
+  
   let sequenceData 
- 
-
+ console.log('tech id array ', techniqueIdArray)
+  
+  console.log('api sequence incoming ', req.body.sequence)
   
   Sequence.create(req.body.sequence)
     
     // respond to successful `create` with status 201 and JSON of new "sequence"
     .then(sequence => {
       sequenceData = sequence
-      console.log('hello', sequenceData)
-      res.status(201).json({ sequenceData })
+    
     })
     .then(() => User.findById(req.user._id))
     .then(user => {
@@ -92,10 +94,13 @@ router.post('/', requireToken, (req, res, next) => {
     })
 
     // Find technique by ids
-    
+    .then(() => {
+      Technique.findById.all(techniqueIdArray).then(value => console.log(value))
+    })
     // if an error occurs, pass it off to our error handler
     // the error handler needs the error message and the `res` object so that it
     // can send an error message back to the client
+    .then(() => res.status(201).json({ sequenceData }))
     .catch(next)
 })
 
