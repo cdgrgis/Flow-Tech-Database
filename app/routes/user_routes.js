@@ -36,12 +36,17 @@ router.get('/users', (req, res, next) => {
 
 // GET one User
 router.get('/users/:id', requireToken, (req, res, next) => {
+  let userData = ''
   console.log('user id ', req.user.id)
   User.findById(req.user.id)
-    .populate('techniques')
+    .populate('sequences')
+    .populate({ path: 'sequences.techniques' })
     .then(user => {
-      console.log(user)
-      res.status(200).json({ user })
+      userData = user
+      console.log('user data ', userData)
+    })
+    .then(() => {
+
     })
     .catch(next)
 })
