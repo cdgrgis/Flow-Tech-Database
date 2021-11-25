@@ -69,9 +69,18 @@ router.get('/:id', requireToken, (req, res, next) => {
 router.post('/', requireToken, (req, res, next) => {
   // set owner of new sequence to be current user
   req.body.sequence.owner = req.user.id
-  console.log('user ', req.user)
+ 
   
   const techniqueIdArray = [Object.values(req.body.sequence.techniques)]
+  
+  const techniquePromiseArray = []
+  let techniqueData 
+
+  for (let i = 0; i < Object.keys(req.body.sequence.techniques).length; i++) {
+    const techniquePromise = Technique.findById(req.body.sequence.techniques[i])
+    console.log('tech prom ', techniquePromise)
+    techniquePromiseArray.push(techniquePromise)
+  }
   
   
   let sequenceData 
@@ -94,13 +103,24 @@ router.post('/', requireToken, (req, res, next) => {
     })
 
     // Find technique by ids
-    .then(() => {
-      Technique.findById.all(techniqueIdArray).then(value => console.log(value))
+    .then(() => Promise.all(techniquePromiseArray))
+    .then(techniqueArray => {
+      const completedArray = []
+
+      techniqueData = techniqueArray
+      
+      techniqueArray.forEach(technique => {
+        if (!completedArray.includes(sequenceData._id)) {
+          technique.sequences.push(sequenceData._id)
+          completedArray.push(sequenceData._id)
+          return technique.save()    
+        }      
+      })
     })
     // if an error occurs, pass it off to our error handler
     // the error handler needs the error message and the `res` object so that it
     // can send an error message back to the client
-    .then(() => res.status(201).json({ sequenceData }))
+    .then(() => res.status(201).json({ sequenceData, techniqueData }))
     .catch(next)
 })
 
@@ -110,15 +130,31 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
   // if the client attempts to change the `owner` property by including a new
   // owner, prevent that by deleting that key/value pair
   delete req.body.sequence.owner
+  const sequenceData = req.body
+  console.log(req.body)
+  // Declare an array with the technique ids
+  const techniquesArray = Object.values(req.body.sequence.techniques)
+  const techniquePromiseArray = []
 
+  for (let i = 0; i < techniquesArray.length; i++) {
+    const techniquePromise = Technique.findById(techniquesArray[i])
+    techniquePromiseArray.push(techniquePromise)
+  }
+  
+
+
+  // Find the sequence by its id
   Sequence.findById(req.params.id)
+    // handle 404 errors
     .then(handle404)
     // ensure the signed in user (req.user.id) is the same as the sequence's owner (sequence.owner)
     .then(sequence => requireOwnership(req, sequence))
     // updating sequence object with sequenceData
     .then(sequence => sequence.updateOne(req.body.sequence))
+    // find the technique data
+    .then(() => Promise.all(techniquePromiseArray))
     // if that succeeded, return 204 and no JSON
-    .then(() => res.sendStatus(204))
+    .then((techniqueData) => res.status(200).json({ sequenceData, techniqueData }))
     // if an error occurs, pass it to the handler
     .catch(next)
 })
@@ -126,14 +162,45 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
 // DESTROY
 // DELETE /sequences/5a7db6c74d55bc51bdf39793
 router.delete('/:id', requireToken, (req, res, next) => {
-  console.log('tech id ', req.params.id)
-  console.log('user id ', req.user.id)
+  // set the sequence id to a variable for later use
+  const sequenceId = req.params.id
+
   Sequence.findById(req.params.id)
     .then(handle404)
      // ensure the signed in user (req.user.id) is the same as the sequence's owner (sequence.owner)
     .then(sequence => requireOwnership(req, sequence))
     // delete sequence from mongodb
-    .then(sequence => sequence.deleteOne())
+    .then(sequence => {
+      sequence.deleteOne()
+      // return the technique id array 
+      return sequence.techniques
+    })
+    // Create an array of promises
+    .then(techniqueIdArray => {
+      // Initialize an empty array for promises
+      const techniquePromiseArray = []
+      // loop through the techniques id array
+      for (let i = 0; i < techniqueIdArray.length; i++) {
+        // set the show technique promise with technique id 
+        const techniquePromise = Technique.findById(techniqueIdArray[i])
+        // add the promise to the promise array
+        techniquePromiseArray.push(techniquePromise)
+      }
+      return techniquePromiseArray
+    })
+    .then(techniquePromiseArray => Promise.all(techniquePromiseArray))
+    .then(techniqueData => {
+      const completedArray = []
+      // console.log('tech data ', techniqueData)
+      // console.log('tech data length ', techniqueDAta.length)
+      for (let i = 0; i < techniqueData.length; i++) {
+        
+          techniqueData[i].sequences.pull(req.params.id)
+          completedArray.push(techniqueData[i]._id)
+          return techniqueData[i].save()
+        
+      }
+    })
     // GET user
     .then(() => User.findById(req.user.id))
     // remove sequence from user's sequences array
