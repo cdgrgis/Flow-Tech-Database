@@ -89,6 +89,10 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
   // owner, prevent that by deleting that key/value pair
   delete req.body.technique.owner
 
+  const technique = req.body.technique
+  technique._id = req.params.id
+  let techniqueData = ''
+
   Technique.findById(req.params.id)
     .then(handle404)
     // ensure the signed in user (req.user.id) is the same as the technique's owner (technique.owner)
@@ -96,7 +100,7 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
     // updating technique object with techniqueData
     .then(technique => technique.updateOne(req.body.technique))
     // if that succeeded, return 204 and no JSON
-    .then(() => res.sendStatus(204))
+    .then(() => res.status(200).json({ technique }))
     // if an error occurs, pass it to the handler
     .catch(next)
 })
