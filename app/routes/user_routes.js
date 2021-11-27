@@ -36,18 +36,35 @@ router.get('/users', (req, res, next) => {
 
 // GET one User
 router.get('/users/:id', requireToken, (req, res, next) => {
-  let userData = ''
+  
   console.log('user id ', req.user.id)
-  console.log('seq tech ids ', req.)
+  
   User.findById(req.user.id)
     .populate('techniques')
     .populate('sequences')
-    
-    .then(user => {
-      userData = user
-      console.log('user data ', userData)
+    .populate({
+      path: 'sequences',
+      populate: {
+        path: 'techniques',
+        model: 'Technique'
+      }
     })
-    .then(() => res.status(200).json({ userData }))
+    .then(user => {
+       
+      console.log('user data ', user)
+      console.log('tech ', user.sequences[0].techniques)
+      // const sequenceTechniques = []
+      // for (let i = 0; i < userData.sequences.length; i++) {
+      //   const techniqueIdsArray = []
+      //   const sequence = userData.sequences[i]
+      //   for (let j = 0; j < sequence.techniques.length; j++) {
+      //     const techniquePromise = 
+      //   }
+        
+      // }
+      return user
+    })
+    .then((user) => res.status(200).json({ user }))
     .catch(next)
 })
 

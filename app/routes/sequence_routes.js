@@ -83,7 +83,7 @@ router.post('/', requireToken, (req, res, next) => {
   }
   
   
-  let sequenceData 
+  let sequenceData = ''
  console.log('tech id array ', techniqueIdArray)
   
   console.log('api sequence incoming ', req.body.sequence)
@@ -97,9 +97,10 @@ router.post('/', requireToken, (req, res, next) => {
     })
     .then(() => User.findById(req.user._id))
     .then(user => {
-      
-      user.sequences.push(sequenceData._id)
-      return user.save()
+      if (sequenceData !== '') {
+        user.sequences.push(sequenceData._id)
+        return user.save()
+      }
     })
 
     // Find technique by ids
