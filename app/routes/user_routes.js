@@ -39,19 +39,20 @@ router.get('/users', (req, res, next) => {
 
 router.post('/users/username', requireToken, (req, res, next) => {
   console.log('body ', req.body)
-  const userName = req.body.credentials.userName
+  const userNameData = req.body.credentials.userName
+  console.log('username ', userNameData)
   let userId = ''
 
-  User.findOne({ userName : userName})
-    // .populate('techniques')
-    // .populate('sequences')
-    // .populate({
-    //   path: 'sequences',
-    //   populate: {
-    //     path: 'techniques',
-    //     model: 'Technique'
-    //   }
-    // })
+  User.findOne({ userName: userNameData})
+    .populate('techniques')
+    .populate('sequences')
+    .populate({
+      path: 'sequences',
+      populate: {
+        path: 'techniques',
+        model: 'Technique'
+      }
+    })
     .then((user) => res.status(200).json({ user }))
     .catch(next)
 })
@@ -217,7 +218,7 @@ router.patch('/update-user', requireToken, (req, res, next) => {
         return user.save()
       })
     })
-    .then(() => res.status(204))
+    .then(() => res.sendStatus(204))
     .catch(next)
 })
 
