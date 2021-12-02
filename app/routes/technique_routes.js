@@ -91,7 +91,7 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
 
   const technique = req.body.technique
   technique._id = req.params.id
-  let techniqueData = ''
+ 
 
   Technique.findById(req.params.id)
     .then(handle404)

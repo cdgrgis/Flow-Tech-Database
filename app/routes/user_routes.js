@@ -25,14 +25,37 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
+
+
 // GET USERS
 
 router.get('/users', (req, res, next) => {
   User.find()
     .populate('techniques')
     .then(users => console.log(users))
+    .then(users => res.status(200).json({ users }))
     .catch(next)
 })
+
+router.post('/users/username', requireToken, (req, res, next) => {
+  console.log('body ', req.body)
+  const userName = req.body.credentials.userName
+  let userId = ''
+
+  User.findOne({ userName : userName})
+    // .populate('techniques')
+    // .populate('sequences')
+    // .populate({
+    //   path: 'sequences',
+    //   populate: {
+    //     path: 'techniques',
+    //     model: 'Technique'
+    //   }
+    // })
+    .then((user) => res.status(200).json({ user }))
+    .catch(next)
+})
+
 
 // GET one User
 router.get('/users/:id', requireToken, (req, res, next) => {
@@ -52,21 +75,15 @@ router.get('/users/:id', requireToken, (req, res, next) => {
     .then(user => {
        
       console.log('user data ', user)
-      console.log('tech ', user.sequences[0].techniques)
-      // const sequenceTechniques = []
-      // for (let i = 0; i < userData.sequences.length; i++) {
-      //   const techniqueIdsArray = []
-      //   const sequence = userData.sequences[i]
-      //   for (let j = 0; j < sequence.techniques.length; j++) {
-      //     const techniquePromise = 
-      //   }
-        
-      // }
+   
       return user
     })
     .then((user) => res.status(200).json({ user }))
     .catch(next)
 })
+
+
+
 
 // SIGN UP
 // POST /sign-up
@@ -172,6 +189,35 @@ router.patch('/change-password', requireToken, (req, res, next) => {
     // respond with no content and status 200
     .then(() => res.sendStatus(204))
     // pass any errors along to the error handler
+    .catch(next)
+})
+
+router.patch('/update-user', requireToken, (req, res, next) => {
+ 
+  // we don't know the name of the object in `req.body`, so we'll apply this to
+  // ALL objects in `req.body`
+  Object.values(req.body).forEach(obj => {
+    for (const key in obj) {
+      if (obj[key] === '') {
+        // removes both the key and the value, preventing it from being updated
+        delete obj[key]
+      }
+    }
+  })
+
+  console.log('userData ', req.body.userData)
+  console.log('user ', req.user)
+  console.log('username ', req.body.userData.userName)
+
+  User.findById(req.user._id)
+    .then(user => {
+      Object.keys(req.body.userData).forEach(key => {
+        console.log('key', req.body.userData[key])
+        user[key] = req.body.userData[key]
+        return user.save()
+      })
+    })
+    .then(() => res.status(204))
     .catch(next)
 })
 
