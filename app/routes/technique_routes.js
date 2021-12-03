@@ -110,6 +110,7 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
 router.delete('/:id', requireToken, (req, res, next) => {
   console.log('tech id ', req.params.id)
   console.log('user id ', req.user.id)
+
   Technique.findById(req.params.id)
     .then(handle404)
      // ensure the signed in user (req.user.id) is the same as the technique's owner (technique.owner)
