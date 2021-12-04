@@ -152,11 +152,14 @@ router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
     .then(sequence => requireOwnership(req, sequence))
     // updating sequence object with sequenceData
     .then(sequence => sequence.updateOne(req.body.sequence))
-    // find the technique data
-    .then(() => Promise.all(techniquePromiseArray))
-    // if that succeeded, return 204 and no JSON
-    .then((techniqueData) => res.status(200).json({ sequenceData, techniqueData }))
+
+    
+    // // find the technique data
+    // .then(() => Promise.all(techniquePromiseArray))
+    // // if that succeeded, return 204 and no JSON
+    // .then((techniqueData) => res.status(200).json({ sequenceData, techniqueData }))
     // if an error occurs, pass it to the handler
+    .then(() => res.sendStatus(204))
     .catch(next)
 })
 
