@@ -5,14 +5,8 @@ const techniqueSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  timing: {
-    type: String,
-    required: true
-  },
-  direction: {
-    type: String,
-    required: true
-  },
+  timing: String,
+  direction: String,
   description: String,
   demonstration: String,
   demonstrationComment: String,
