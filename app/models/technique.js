@@ -15,6 +15,7 @@ const techniqueSchema = new mongoose.Schema({
   },
   description: String,
   demonstration: String,
+  demonstrationComment: String,
   sequences: [
     {
       type: mongoose.Schema.Types.ObjectId,
