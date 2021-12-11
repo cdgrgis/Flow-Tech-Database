@@ -9,10 +9,13 @@ In planning for this project, I completed the User model and routes first, follo
 ## Setup Steps
   1. Fork and clone this repository
   2. Run `npm install` to install all dependencies.
-  3. Use `grunt serve` to start up server.
+  3. Use `npm run server` to start up server.
 
 ## Important Links
 [Flow Technique Database] (https://cdgrgis.github.io/flowtech-client)
+
+## ERD
+![Model ERD](https://media.git.generalassemb.ly/user/37795/files/a9411600-56bf-11ec-929e-721ff2a06d5f)
 
 ## User Model
  - email (required)
